@@ -21,7 +21,11 @@ NumberEdit::NumberEdit(int base, int groupSize, QWidget* parent) :
     connect(this, &NumberEdit::selectionChanged, this, &NumberEdit::onSelectionChange);
 
     QFont monospace("Monospace");
+#ifdef Q_OS_WIN
+    monospace.setStyleHint(QFont::TypeWriter);
+#else
     monospace.setStyleHint(QFont::Monospace);
+#endif
     monospace.setPointSize(24);
     setFont(monospace);
 }
