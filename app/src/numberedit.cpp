@@ -1,6 +1,5 @@
 #include "numberedit.h"
 
-#include <QDebug>
 #include <QEvent>
 #include <QFontDatabase>
 #include <QKeyEvent>

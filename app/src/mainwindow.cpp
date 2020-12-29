@@ -1,8 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <QDebug>
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -79,7 +77,6 @@ void MainWindow::onSelectionChange(qulonglong selection, int from, int to)
         return;
     }
 
-    qDebug() << selection;
     ui->statusbar->showMessage(QString::asprintf(qPrintable(tr("Selection: 0x%02llX (%llu) [bits %d..%d]")),
                                                  selection, selection, from, to));
 }
