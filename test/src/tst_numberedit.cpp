@@ -119,7 +119,7 @@ TEST(NumberEdit, selection_1)
 {
     {
         auto [selection, from, to] = NumberEdit::extractSelection("1234 5678", 0, 0, NumberEdit::mcBase2);
-        EXPECT_EQ(0, selection);
+        EXPECT_EQ(0ULL, selection);
         EXPECT_EQ(0, from);
         EXPECT_EQ(0, to);
     }
@@ -129,28 +129,28 @@ TEST(NumberEdit, selection_2)
 {
     {
         auto [selection, from, to] = NumberEdit::extractSelection("1000 0000", 0, 1, NumberEdit::mcBase2);
-        EXPECT_EQ(1, selection);
+        EXPECT_EQ(1ULL, selection);
         EXPECT_EQ(7, from);
         EXPECT_EQ(7, to);
     }
 
     {
         auto [selection, from, to] = NumberEdit::extractSelection("1100 0000", 0, 2, NumberEdit::mcBase2);
-        EXPECT_EQ(3, selection);
+        EXPECT_EQ(3ULL, selection);
         EXPECT_EQ(7, from);
         EXPECT_EQ(6, to);
     }
 
     {
         auto [selection, from, to] = NumberEdit::extractSelection("0000 0001", 8, 9, NumberEdit::mcBase2);
-        EXPECT_EQ(1, selection);
+        EXPECT_EQ(1ULL, selection);
         EXPECT_EQ(0, from);
         EXPECT_EQ(0, to);
     }
 
     {
         auto [selection, from, to] = NumberEdit::extractSelection("0000 0011", 7, 9, NumberEdit::mcBase2);
-        EXPECT_EQ(3, selection);
+        EXPECT_EQ(3ULL, selection);
         EXPECT_EQ(1, from);
         EXPECT_EQ(0, to);
     }
@@ -160,28 +160,28 @@ TEST(NumberEdit, selection_3)
 {
     {
         auto [selection, from, to] = NumberEdit::extractSelection("1234 5678", 0, 1, NumberEdit::mcBase16);
-        EXPECT_EQ(0x01, selection);
+        EXPECT_EQ(1ULL, selection);
         EXPECT_EQ(31, from);
         EXPECT_EQ(28, to);
     }
 
     {
         auto [selection, from, to] = NumberEdit::extractSelection("1234 5678", 0, 2, NumberEdit::mcBase16);
-        EXPECT_EQ(0x12, selection);
+        EXPECT_EQ(0x12ULL, selection);
         EXPECT_EQ(31, from);
         EXPECT_EQ(24, to);
     }
 
     {
         auto [selection, from, to] = NumberEdit::extractSelection("1234 5678", 8, 9, NumberEdit::mcBase16);
-        EXPECT_EQ(0x08, selection);
+        EXPECT_EQ(0x08ULL, selection);
         EXPECT_EQ(3, from);
         EXPECT_EQ(0, to);
     }
 
     {
         auto [selection, from, to] = NumberEdit::extractSelection("1234 5678", 7, 9, NumberEdit::mcBase16);
-        EXPECT_EQ(0x78, selection);
+        EXPECT_EQ(0x78ULL, selection);
         EXPECT_EQ(7, from);
         EXPECT_EQ(0, to);
     }
@@ -191,7 +191,7 @@ TEST(NumberEdit, selection_4)
 {
     {
         auto [selection, from, to] = NumberEdit::extractSelection("1234 5678", 3, 6, NumberEdit::mcBase16);
-        EXPECT_EQ(0x45, selection);
+        EXPECT_EQ(0x45ULL, selection);
         EXPECT_EQ(19, from);
         EXPECT_EQ(12, to);
     }
@@ -278,10 +278,10 @@ TEST(NumberEdit, changeSelectedText2)
     ASSERT_EQ("0 a", edit.selectedText());
 
     edit.changeSelectedText(7);
-    EXPECT_EQ(0x10007BCD, edit.value());
+    EXPECT_EQ(0x10007BCDULL, edit.value());
     EXPECT_EQ("0 7", edit.selectedText());
 
     edit.changeSelectedText(0x12);
-    EXPECT_EQ(0x10012BCD, edit.value());
+    EXPECT_EQ(0x10012BCDULL, edit.value());
     EXPECT_EQ("1 2", edit.selectedText());
 }
