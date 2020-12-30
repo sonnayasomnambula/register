@@ -155,6 +155,28 @@ std::tuple<qulonglong, int, int> NumberEdit::extractSelection(const QString& tex
     return {selection, from, to};
 }
 
+void NumberEdit::changeSelectedText(qulonglong value)
+{
+    QString original = selectedText();
+    int spaces = original.count(mcSeparator);
+
+    QString number = QString::number(value, mBase);
+    const bool wrong = original.size() < number.size() + spaces;
+    if (wrong) return;
+
+    number.prepend(QString(original.size() - number.size() - spaces, '0'));
+    for (int i = -1; i = original.indexOf(mcSeparator, i + 1), i != -1;)
+        number.insert(i, mcSeparator);
+
+    int sst = selectionStart();
+    int ssl = selectionLength();
+    QString entire = text();
+    entire.remove(sst, ssl);
+    entire.insert(sst, number);
+    setText(entire);
+    setSelection(sst, ssl);
+}
+
 QValidator::State NumberEdit::Validator::validate(QString& input, int&) const
 {
     if (input.isEmpty())

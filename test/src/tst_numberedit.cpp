@@ -249,3 +249,39 @@ TEST(NumberEdit, bigdata)
     EXPECT_EQ("1 0000 0000", source.text());
     EXPECT_EQ("1 0000 0000 0000 0000 0000 0000 0000 0000", target.text());
 }
+
+TEST(NumberEdit, changeSelectedText1)
+{
+    NumberEdit edit(16, 4);
+    edit.setValue(0x12345678);
+    ASSERT_EQ("1234 5678", edit.text());
+
+    edit.setSelection(3, 3);
+    ASSERT_EQ("4 5", edit.selectedText());
+
+    edit.changeSelectedText(2);
+    EXPECT_EQ("0 2", edit.selectedText());
+    EXPECT_EQ("1230 2678", edit.text());
+
+    edit.changeSelectedText(0xAB);
+    EXPECT_EQ("a b", edit.selectedText());
+    EXPECT_EQ("123a b678", edit.text());
+}
+
+TEST(NumberEdit, changeSelectedText2)
+{
+    NumberEdit edit(16, 4);
+    edit.setValue(0x1000ABCD);
+    ASSERT_EQ("1000 abcd", edit.text());
+
+    edit.setSelection(3, 3);
+    ASSERT_EQ("0 a", edit.selectedText());
+
+    edit.changeSelectedText(7);
+    EXPECT_EQ(0x10007BCD, edit.value());
+    EXPECT_EQ("0 7", edit.selectedText());
+
+    edit.changeSelectedText(0x12);
+    EXPECT_EQ(0x10012BCD, edit.value());
+    EXPECT_EQ("1 2", edit.selectedText());
+}

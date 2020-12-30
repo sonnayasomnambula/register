@@ -1,9 +1,15 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <QDebug>
+#include <QTimer>
+
+#include "selectiondialog.h"
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , mSelectionDialog(new SelectionDialog(this))
 {
     ui->setupUi(this);
 
@@ -26,11 +32,21 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->hex, &NumberEdit::selectionChanged2, this, &MainWindow::onSelectionChange);
     connect(ui->bin, &NumberEdit::selectionChanged2, this, &MainWindow::onSelectionChange);
+
+    mSelectionDialog->show();
+    QTimer::singleShot(50, this, &MainWindow::moveSelectionDialog);
+
+    connect(mSelectionDialog, &SelectionDialog::valueChanged, this, &MainWindow::changeSelectedText);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::moveEvent(QMoveEvent*)
+{
+    moveSelectionDialog();
 }
 
 void MainWindow::onValueChange(qulonglong value)
@@ -74,10 +90,36 @@ void MainWindow::onSelectionChange(qulonglong selection, int from, int to)
     if (from == 0 && to == 0 && selection == 0)
     {
         ui->statusbar->clearMessage();
+        mSelectionDialog->clear();
         return;
     }
 
-    ui->statusbar->showMessage(QString::asprintf(qPrintable(tr("Selection: 0x%02llX (%llu) [bits %d..%d]")),
-                                                 selection, selection, from, to));
+    ui->statusbar->showMessage(QString::asprintf(qPrintable(tr("Bits %d..%d selected")), from, to));
+    mSelectionDialog->setValue(selection);
+}
+
+void MainWindow::moveSelectionDialog()
+{
+    QPoint topRight = mapToGlobal(frameGeometry().topRight());
+#ifdef Q_OS_LINUX
+    // works in XUbuntu / XFCE 4.14
+    QPoint topLeft = mapToGlobal(frameGeometry().topLeft());
+    const int factor = 2;
+    topLeft.rx() /= factor;
+    topLeft.ry() /= factor;
+    topRight -= topLeft;
+#endif
+    topRight.ry() -= 12;
+    mSelectionDialog->move(topRight);
+}
+
+void MainWindow::changeSelectedText(qulonglong value)
+{
+    QList<NumberEdit*> editors = { ui->hex, ui->bin };
+    for (NumberEdit* edit: editors)
+    {
+        if (edit->hasSelectedText())
+            edit->changeSelectedText(value);
+    }
 }
 

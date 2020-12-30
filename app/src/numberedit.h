@@ -54,6 +54,7 @@ public:
 
     static QString separated(const QString number, int groupSize);
     static std::tuple<qulonglong, int, int> extractSelection(const QString& text, int start, int end, int base);
+    void changeSelectedText(qulonglong value);
 
     static const int mcBase2 = 2;
     static const int mcBase16 = 16;
