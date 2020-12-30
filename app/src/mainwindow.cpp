@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(mSelectionDialog, &SelectionDialog::valueChanged, this, &MainWindow::changeSelectedText);
 
-    QTimer::singleShot(100, this, &MainWindow::moveSelectionDialog);
+    QTimer::singleShot(100, [this]{ moveSelectionDialog(true); });
 }
 
 void MainWindow::moveEvent(QMoveEvent*)
@@ -46,19 +46,33 @@ void MainWindow::onSelectionChange()
     mSelectionDialog->setValue(selection);
 }
 
-void MainWindow::moveSelectionDialog()
+void MainWindow::moveSelectionDialog(bool force)
 {
     QPoint topRight = mapToGlobal(frameGeometry().topRight());
 #ifdef Q_OS_LINUX
-    // works in XUbuntu / XFCE 4.14
-    QPoint topLeft = mapToGlobal(frameGeometry().topLeft());
+    {
+        // works in XUbuntu / XFCE 4.14
+        QPoint topLeft = mapToGlobal(frameGeometry().topLeft());
+        const int factor = 2;
+        topLeft.rx() /= factor;
+        topLeft.ry() /= factor;
+        topRight -= topLeft;
+    }
+#endif
+    topRight.ry() -= 13;
+
+    QPoint topLeft = mSelectionDialog->mapToGlobal(mSelectionDialog->frameGeometry().topLeft());
+#ifdef Q_OS_LINUX
+    // WTF???
     const int factor = 2;
     topLeft.rx() /= factor;
     topLeft.ry() /= factor;
-    topRight -= topLeft;
 #endif
-    topRight.ry() -= 13;
-    mSelectionDialog->move(topRight);
+    QPoint diff = topLeft - topRight;
+    const int maxDistance = 30;
+    bool near = std::abs(diff.x()) < maxDistance && std::abs(diff.y()) < maxDistance;
+    if (near || force)
+        mSelectionDialog->move(topRight);
 }
 
 void MainWindow::changeSelectedText(qulonglong value)

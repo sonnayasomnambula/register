@@ -15,7 +15,7 @@ protected:
 
 private:
     void onSelectionChange();
-    void moveSelectionDialog();
+    void moveSelectionDialog(bool force = false);
     void changeSelectedText(qulonglong value);
 
     SelectionDialog* mSelectionDialog = nullptr;
