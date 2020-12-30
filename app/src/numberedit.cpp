@@ -18,7 +18,6 @@ NumberEdit::NumberEdit(int base, int groupSize, QWidget* parent) :
 {
     setValidator(&mValidator);
     connect(this, &NumberEdit::textChanged, this, &NumberEdit::onTextChange);
-    connect(this, &NumberEdit::selectionChanged, this, &NumberEdit::onSelectionChange);
 
     QFont monospace("Monospace");
 #ifdef Q_OS_WIN
@@ -74,6 +73,11 @@ QString NumberEdit::separated(const QString number, int groupSize)
     return n;
 }
 
+std::tuple<qulonglong, int, int> NumberEdit::selectedBits() const
+{
+    return extractSelection(text(), selectionStart(), selectionEnd(), mBase);
+}
+
 void NumberEdit::onTextChange(const QString& text)
 {
     int p = cursorPosition();
@@ -83,12 +87,6 @@ void NumberEdit::onTextChange(const QString& text)
     setCursorPosition(p);
 
     emit valueChanged(value());
-}
-
-void NumberEdit::onSelectionChange()
-{
-    auto [selection, from, to] = extractSelection(text(), selectionStart(), selectionEnd(), mBase);
-    emit selectionChanged2(selection, from, to);
 }
 
 ///
@@ -106,7 +104,7 @@ std::tuple<qulonglong, int, int> NumberEdit::extractSelection(const QString& tex
     if (start == end)
     {
         // nothing selected
-        return {0, 0, 0}; // TODO the same result if a single zero selected on the right
+        return {0, 0, 0};
     }
 
     QString selectedText = text.mid(start, end - start);

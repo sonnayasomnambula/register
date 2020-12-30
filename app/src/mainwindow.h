@@ -1,33 +1,24 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
-
-QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
-QT_END_NAMESPACE
+#include "basedialog.h"
 
 class SelectionDialog;
 
-class MainWindow : public QMainWindow
+class MainWindow : public BaseDialog
 {
-    Q_OBJECT
-
 public:
-    MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    explicit MainWindow(QWidget *parent = nullptr);
 
 protected:
     void moveEvent(QMoveEvent* e) override;
 
 private:
-    void onValueChange(qulonglong value);
-    void clearIfEmpty(const QString& text);
-    void onSelectionChange(qulonglong selection, int from, int to);
+    void onSelectionChange();
     void moveSelectionDialog();
     void changeSelectedText(qulonglong value);
 
-    Ui::MainWindow* ui;
     SelectionDialog* mSelectionDialog = nullptr;
+    QList<NumberEdit*> mSelectableEditors;
 };
 #endif // MAINWINDOW_H

@@ -1,5 +1,5 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
+#include "ui_basedialog.h"
 
 #include <QDebug>
 #include <QTimer>
@@ -7,41 +7,21 @@
 #include "selectiondialog.h"
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    : BaseDialog(parent)
     , mSelectionDialog(new SelectionDialog(this))
 {
-    ui->setupUi(this);
+    setWindowTitle(tr("Register"));
 
-    ui->hex->setBase(16);
-    ui->hex->setGroupSize(4);
+    mSelectableEditors = { ui->hex, ui->bin };
+    for (auto edit: mSelectableEditors)
+        connect(edit, &NumberEdit::selectionChanged, this, &MainWindow::onSelectionChange);
 
-    ui->dec->setBase(10);
-    ui->dec->setGroupSize(3);
-
-    ui->bin->setBase(2);
-    ui->bin->setGroupSize(4);
-
-    connect(ui->hex, &NumberEdit::valueChanged, this, &MainWindow::onValueChange);
-    connect(ui->dec, &NumberEdit::valueChanged, this, &MainWindow::onValueChange);
-    connect(ui->bin, &NumberEdit::valueChanged, this, &MainWindow::onValueChange);
-
-    connect(ui->hex, &NumberEdit::textChanged, this, &MainWindow::clearIfEmpty);
-    connect(ui->dec, &NumberEdit::textChanged, this, &MainWindow::clearIfEmpty);
-    connect(ui->bin, &NumberEdit::textChanged, this, &MainWindow::clearIfEmpty);
-
-    connect(ui->hex, &NumberEdit::selectionChanged2, this, &MainWindow::onSelectionChange);
-    connect(ui->bin, &NumberEdit::selectionChanged2, this, &MainWindow::onSelectionChange);
-
+    mSelectionDialog->resize(mSelectionDialog->width() / 3, mSelectionDialog->height());
     mSelectionDialog->show();
-    QTimer::singleShot(50, this, &MainWindow::moveSelectionDialog);
 
     connect(mSelectionDialog, &SelectionDialog::valueChanged, this, &MainWindow::changeSelectedText);
-}
 
-MainWindow::~MainWindow()
-{
-    delete ui;
+    QTimer::singleShot(100, this, &MainWindow::moveSelectionDialog);
 }
 
 void MainWindow::moveEvent(QMoveEvent*)
@@ -49,51 +29,19 @@ void MainWindow::moveEvent(QMoveEvent*)
     moveSelectionDialog();
 }
 
-void MainWindow::onValueChange(qulonglong value)
+void MainWindow::onSelectionChange()
 {
-    NumberEdit* editor = qobject_cast<NumberEdit*>(sender());
-    Q_ASSERT(editor); if (!editor) return;
+    auto edit = qobject_cast<NumberEdit*>(sender());
+    Q_ASSERT(edit); if (!edit) return;
 
-    auto set = [](NumberEdit* sender, NumberEdit* target, qulonglong value){
-        if (sender != target)
-        {
-            QSignalBlocker lock(target);
-            target->setValue(value);
-        }
-    };
-
-    set(editor, ui->hex, value);
-    set(editor, ui->dec, value);
-    set(editor, ui->bin, value);
-}
-
-void MainWindow::clearIfEmpty(const QString& text)
-{
-    NumberEdit* editor = qobject_cast<NumberEdit*>(sender());
-    Q_ASSERT(editor); if (!editor) return;
-
-    auto clr = [](NumberEdit* sender, NumberEdit* target, const QString& text){
-        if (sender != target && text.isEmpty())
-        {
-            QSignalBlocker lock(target);
-            target->clear();
-        }
-    };
-
-    clr(editor, ui->hex, text);
-    clr(editor, ui->dec, text);
-    clr(editor, ui->bin, text);
-}
-
-void MainWindow::onSelectionChange(qulonglong selection, int from, int to)
-{
-    if (from == 0 && to == 0 && selection == 0)
+    if (!edit->hasSelectedText())
     {
         ui->statusbar->clearMessage();
         mSelectionDialog->clear();
         return;
     }
 
+    auto [selection, from, to] = edit->selectedBits();
     ui->statusbar->showMessage(QString::asprintf(qPrintable(tr("Bits %d..%d selected")), from, to));
     mSelectionDialog->setValue(selection);
 }
@@ -109,17 +57,14 @@ void MainWindow::moveSelectionDialog()
     topLeft.ry() /= factor;
     topRight -= topLeft;
 #endif
-    topRight.ry() -= 12;
+    topRight.ry() -= 13;
     mSelectionDialog->move(topRight);
 }
 
 void MainWindow::changeSelectedText(qulonglong value)
 {
-    QList<NumberEdit*> editors = { ui->hex, ui->bin };
-    for (NumberEdit* edit: editors)
-    {
+    for (NumberEdit* edit: mSelectableEditors)
         if (edit->hasSelectedText())
             edit->changeSelectedText(value);
-    }
 }
 

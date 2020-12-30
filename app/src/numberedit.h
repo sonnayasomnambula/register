@@ -53,7 +53,10 @@ public:
     int groupSize() const { return mGroupSize; }
 
     static QString separated(const QString number, int groupSize);
+
+    std::tuple<qulonglong, int, int> selectedBits() const;
     static std::tuple<qulonglong, int, int> extractSelection(const QString& text, int start, int end, int base);
+
     void changeSelectedText(qulonglong value);
 
     static const int mcBase2 = 2;
@@ -61,11 +64,9 @@ public:
 
 signals:
     void valueChanged(qulonglong);
-    void selectionChanged2(qulonglong selection, int from, int to); // TODO rename
 
 private:
     void onTextChange(const QString& text);
-    void onSelectionChange();
 
     int mBase = 10;
     int mGroupSize = 3;
