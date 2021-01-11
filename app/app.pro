@@ -20,3 +20,6 @@ FORMS += \
 
 INCLUDEPATH += \
     src
+
+RESOURCES += \
+    resources.qrc
