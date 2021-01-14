@@ -180,6 +180,8 @@ QValidator::State NumberEdit::Validator::validate(QString& input, int&) const
     if (input.isEmpty())
         return QValidator::Acceptable;
 
+    input = input.toUpper();
+
     bool ok = false;
     QString s = input;
     s.remove(mcSeparator);
