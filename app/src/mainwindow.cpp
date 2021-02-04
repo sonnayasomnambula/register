@@ -69,7 +69,7 @@ void MainWindow::moveSelectionDialog(bool force)
     topLeft.ry() /= factor;
 #endif
     QPoint diff = topLeft - topRight;
-    const int maxDistance = 30;
+    const int maxDistance = 120;
     bool near = std::abs(diff.x()) < maxDistance && std::abs(diff.y()) < maxDistance;
     if (near || force)
         mSelectionDialog->move(topRight);
