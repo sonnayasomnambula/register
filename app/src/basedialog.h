@@ -15,7 +15,7 @@ class BaseDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit BaseDialog(QWidget *parent = nullptr);
+    explicit BaseDialog(QWidget *parent = nullptr, Qt::WindowFlags flags = Qt::WindowFlags());
     ~BaseDialog() override;
 
     void setValue(qulonglong value);

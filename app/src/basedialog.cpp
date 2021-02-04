@@ -1,8 +1,8 @@
 #include "basedialog.h"
 #include "ui_basedialog.h"
 
-BaseDialog::BaseDialog(QWidget *parent) :
-    QDialog(parent),
+BaseDialog::BaseDialog(QWidget *parent, Qt::WindowFlags flags) :
+    QDialog(parent, flags),
     ui(new Ui::BaseDialog)
 {
     ui->setupUi(this);

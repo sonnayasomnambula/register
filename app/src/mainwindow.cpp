@@ -7,7 +7,7 @@
 #include "selectiondialog.h"
 
 MainWindow::MainWindow(QWidget *parent)
-    : BaseDialog(parent)
+    : BaseDialog(parent, Qt::Window)
     , mSelectionDialog(new SelectionDialog(this))
 {
     setWindowTitle(tr("Register"));
