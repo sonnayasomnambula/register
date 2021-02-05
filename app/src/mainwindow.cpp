@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
     for (auto edit: mSelectableEditors)
         connect(edit, &NumberEdit::selectionChanged, this, &MainWindow::onSelectionChange);
 
+    mSelectionDialog->installEventFilter(this);
     mSelectionDialog->resize(mSelectionDialog->width() / 3, mSelectionDialog->height());
     mSelectionDialog->show();
 
@@ -48,31 +49,9 @@ void MainWindow::onSelectionChange()
 
 void MainWindow::moveSelectionDialog(bool force)
 {
-    QPoint topRight = mapToGlobal(frameGeometry().topRight());
-#ifdef Q_OS_LINUX
-    {
-        // works in XUbuntu / XFCE 4.14
-        QPoint topLeft = mapToGlobal(frameGeometry().topLeft());
-        const int factor = 2;
-        topLeft.rx() /= factor;
-        topLeft.ry() /= factor;
-        topRight -= topLeft;
-    }
-#endif
-    topRight.ry() -= 13;
-
-    QPoint topLeft = mSelectionDialog->mapToGlobal(mSelectionDialog->frameGeometry().topLeft());
-#ifdef Q_OS_LINUX
-    // WTF???
-    const int factor = 2;
-    topLeft.rx() /= factor;
-    topLeft.ry() /= factor;
-#endif
-    QPoint diff = topLeft - topRight;
-    const int maxDistance = 120;
-    bool near = std::abs(diff.x()) < maxDistance && std::abs(diff.y()) < maxDistance;
-    if (near || force)
-        mSelectionDialog->move(topRight);
+    mSticking |= force;
+    if (mSticking)
+        mSelectionDialog->move(frameGeometry().topRight());
 }
 
 void MainWindow::changeSelectedText(qulonglong value)
@@ -82,3 +61,25 @@ void MainWindow::changeSelectedText(qulonglong value)
             edit->changeSelectedText(value);
 }
 
+bool MainWindow::eventFilter(QObject* o, QEvent* e)
+{
+    if (o == mSelectionDialog && e->type() == QEvent::Move)
+    {
+        QPoint topRight = frameGeometry().topRight();
+        QPoint pos = mSelectionDialog->pos();
+
+        QPoint diff = pos - topRight;
+        const int captureDistance = 50;
+        bool near = std::abs(diff.x()) < captureDistance && std::abs(diff.y()) < captureDistance;
+        if (mSticking != near)
+        {
+            mSticking = near;
+            if (mSticking)
+            {
+                QTimer::singleShot(0, this, [this]{ moveSelectionDialog(); });
+            }
+        }
+    }
+
+    return QObject::eventFilter(o, e);
+}

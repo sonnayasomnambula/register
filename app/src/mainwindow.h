@@ -18,7 +18,10 @@ private:
     void moveSelectionDialog(bool force = false);
     void changeSelectedText(qulonglong value);
 
+    bool eventFilter(QObject* o, QEvent* e) override;
+
     SelectionDialog* mSelectionDialog = nullptr;
     QList<NumberEdit*> mSelectableEditors;
+    bool mSticking = true;
 };
 #endif // MAINWINDOW_H
