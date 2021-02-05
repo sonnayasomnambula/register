@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(mSelectionDialog, &SelectionDialog::valueChanged, this, &MainWindow::changeSelectedText);
 
-    QTimer::singleShot(100, [this]{ moveSelectionDialog(true); });
+    QTimer::singleShot(100, this, [this]{ moveSelectionDialog(true); });
 }
 
 void MainWindow::moveEvent(QMoveEvent*)
@@ -43,7 +43,7 @@ void MainWindow::onSelectionChange()
     }
 
     auto [selection, from, to] = edit->selectedBits();
-    ui->statusbar->showMessage(QString::asprintf(qPrintable(tr("Bits %d..%d selected")), from, to));
+    ui->statusbar->showMessage(tr("Bits %1..%2 selected").arg(from).arg(to));
     mSelectionDialog->setValue(selection);
 }
 
@@ -65,12 +65,9 @@ bool MainWindow::eventFilter(QObject* o, QEvent* e)
 {
     if (o == mSelectionDialog && e->type() == QEvent::Move)
     {
-        QPoint topRight = frameGeometry().topRight();
-        QPoint pos = mSelectionDialog->pos();
-
-        QPoint diff = pos - topRight;
+        QPoint distance = mSelectionDialog->pos() - frameGeometry().topRight();
         const int captureDistance = 50;
-        bool near = std::abs(diff.x()) < captureDistance && std::abs(diff.y()) < captureDistance;
+        bool near = std::abs(distance.x()) < captureDistance && std::abs(distance.y()) < captureDistance;
         if (mSticking != near)
         {
             mSticking = near;
