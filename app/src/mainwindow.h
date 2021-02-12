@@ -17,6 +17,7 @@ private:
     void onSelectionChange();
     void moveSelectionDialog(bool force = false);
     void changeSelectedText(qulonglong value);
+    void switchFocus();
 
     bool eventFilter(QObject* o, QEvent* e) override;
 

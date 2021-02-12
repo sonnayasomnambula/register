@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_basedialog.h"
 
+#include <QAction>
 #include <QDebug>
 #include <QTimer>
 
@@ -23,6 +24,12 @@ MainWindow::MainWindow(QWidget *parent)
     connect(mSelectionDialog, &SelectionDialog::valueChanged, this, &MainWindow::changeSelectedText);
 
     QTimer::singleShot(100, this, [this]{ moveSelectionDialog(true); });
+
+    QAction* ctrlTab = new QAction(this);
+    ctrlTab->setShortcut(Qt::Key_Tab | Qt::ControlModifier);
+    ctrlTab->setShortcutContext(Qt::ShortcutContext::ApplicationShortcut);
+    connect(ctrlTab, &QAction::triggered, this, &MainWindow::switchFocus);
+    addAction(ctrlTab);
 }
 
 void MainWindow::moveEvent(QMoveEvent*)
@@ -59,6 +66,15 @@ void MainWindow::changeSelectedText(qulonglong value)
     for (NumberEdit* edit: mSelectableEditors)
         if (edit->hasSelectedText())
             edit->changeSelectedText(value);
+}
+
+void MainWindow::switchFocus()
+{
+    QWidget* nextWindow = isActiveWindow() ? static_cast<QWidget*>(mSelectionDialog) : static_cast<QWidget*>(this);
+
+    nextWindow->raise();
+    nextWindow->activateWindow();
+    nextWindow->findChild<QLineEdit*>()->setFocus();
 }
 
 bool MainWindow::eventFilter(QObject* o, QEvent* e)
