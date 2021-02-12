@@ -10,10 +10,10 @@
 MainWindow::MainWindow(QWidget *parent)
     : BaseDialog(parent, Qt::Window)
     , mSelectionDialog(new SelectionDialog(this))
+    , mSelectableEditors({ ui->hex, ui->bin })
 {
     setWindowTitle(tr("Register"));
 
-    mSelectableEditors = { ui->hex, ui->bin };
     for (auto edit: mSelectableEditors)
         connect(edit, &NumberEdit::selectionChanged, this, &MainWindow::onSelectionChange);
 

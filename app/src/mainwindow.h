@@ -22,7 +22,7 @@ private:
     bool eventFilter(QObject* o, QEvent* e) override;
 
     SelectionDialog* mSelectionDialog = nullptr;
-    QList<NumberEdit*> mSelectableEditors;
+    const QList<NumberEdit*> mSelectableEditors;
     bool mSticking = true;
 };
 #endif // MAINWINDOW_H
